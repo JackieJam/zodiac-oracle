@@ -19,6 +19,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
+    repeating-radial-gradient(circle at 50% -10%, rgba(242, 239, 231, 0.055) 0 1px, transparent 1px 72px),
     radial-gradient(circle at 20% 10%, rgba(118, 217, 196, 0.17), transparent 28rem),
     radial-gradient(circle at 88% 4%, rgba(215, 255, 113, 0.13), transparent 24rem),
     linear-gradient(135deg, #0c0f0d 0%, #171c18 46%, #0b0e0c 100%);
@@ -107,20 +108,18 @@ h1 {
 
 .workspace {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 320px;
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: 18px;
   padding-top: 18px;
 }
 
 .zodiac-panel,
-.report-panel,
-.personal-panel {
+.report-panel {
   border: 1px solid var(--line);
   background: var(--panel);
 }
 
-.zodiac-panel,
-.personal-panel {
+.zodiac-panel {
   padding: 18px;
 }
 
@@ -143,7 +142,7 @@ h1 {
 }
 
 .sign-card {
-  min-height: 84px;
+  min-height: 96px;
   border: 1px solid var(--line);
   background: #121714;
   color: var(--ink);
@@ -171,9 +170,18 @@ h1 {
   font-size: 12px;
 }
 
+.sign-card small {
+  display: block;
+  margin-top: 12px;
+  color: var(--accent-2);
+  font-size: 12px;
+}
+
 .report-panel {
   min-height: 720px;
   padding: 26px;
+  position: relative;
+  overflow: hidden;
 }
 
 .report-topline {
@@ -186,6 +194,93 @@ h1 {
   width: 40px;
   border: 1px solid var(--line);
   font-size: 20px;
+}
+
+.astro-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  background: rgba(8, 11, 10, 0.78);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.astro-loader.active {
+  opacity: 1;
+}
+
+.astro-loader p {
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.zodiac-wheel {
+  position: relative;
+  width: 172px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(215, 255, 113, 0.58);
+  border-radius: 50%;
+  animation: starTurn 4.8s linear infinite;
+  box-shadow:
+    0 0 0 18px rgba(215, 255, 113, 0.035),
+    0 0 48px rgba(118, 217, 196, 0.2),
+    inset 0 0 36px rgba(215, 255, 113, 0.12);
+}
+
+.zodiac-wheel::before,
+.zodiac-wheel::after {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border: 1px solid rgba(242, 239, 231, 0.16);
+  border-radius: 50%;
+}
+
+.zodiac-wheel::after {
+  inset: 72px;
+  background: var(--accent);
+  box-shadow: 0 0 22px var(--accent);
+}
+
+.zodiac-wheel span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-size: 18px;
+  transform: rotate(calc(var(--i) * 30deg)) translateY(-82px) rotate(calc(var(--i) * -30deg));
+}
+
+.zodiac-wheel span:nth-child(1) { --i: 0; }
+.zodiac-wheel span:nth-child(2) { --i: 1; }
+.zodiac-wheel span:nth-child(3) { --i: 2; }
+.zodiac-wheel span:nth-child(4) { --i: 3; }
+.zodiac-wheel span:nth-child(5) { --i: 4; }
+.zodiac-wheel span:nth-child(6) { --i: 5; }
+.zodiac-wheel span:nth-child(7) { --i: 6; }
+.zodiac-wheel span:nth-child(8) { --i: 7; }
+.zodiac-wheel span:nth-child(9) { --i: 8; }
+.zodiac-wheel span:nth-child(10) { --i: 9; }
+.zodiac-wheel span:nth-child(11) { --i: 10; }
+.zodiac-wheel span:nth-child(12) { --i: 11; }
+
+@keyframes starTurn {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 h2 {
@@ -336,8 +431,24 @@ ul {
 .ask-panel {
   margin-top: 28px;
   border: 1px solid var(--line);
-  background: #101412;
+  background:
+    linear-gradient(135deg, rgba(255, 184, 107, 0.09), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(118, 217, 196, 0.14), transparent 18rem),
+    #101412;
   padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ask-panel::before {
+  content: "☉";
+  position: absolute;
+  right: 18px;
+  bottom: -18px;
+  color: rgba(215, 255, 113, 0.08);
+  font-size: 132px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .ask-heading {
@@ -345,13 +456,6 @@ ul {
   justify-content: space-between;
   gap: 16px;
   align-items: start;
-}
-
-.ask-heading small {
-  color: var(--muted);
-  border: 1px solid var(--line);
-  padding: 6px 9px;
-  white-space: nowrap;
 }
 
 .quick-questions {
@@ -363,10 +467,11 @@ ul {
 
 .quick-questions button {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.045);
   color: var(--ink);
   padding: 8px 10px;
   cursor: pointer;
+  position: relative;
 }
 
 .quick-questions button:hover {
@@ -390,6 +495,21 @@ ul {
   line-height: 1.7;
   border-left: 3px solid var(--accent);
   padding-left: 12px;
+  min-height: 58px;
+}
+
+.ask-answer.thinking {
+  color: var(--accent);
+  animation: pulseText 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseText {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 form {
@@ -435,7 +555,6 @@ form button {
 }
 
 .is-loading {
-  opacity: 0.6;
   pointer-events: none;
 }
 

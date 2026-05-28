@@ -1,23 +1,22 @@
 const signs = [
-  ["aries", "白羊座", "Aries"],
-  ["taurus", "金牛座", "Taurus"],
-  ["gemini", "双子座", "Gemini"],
-  ["cancer", "巨蟹座", "Cancer"],
-  ["leo", "狮子座", "Leo"],
-  ["virgo", "处女座", "Virgo"],
-  ["libra", "天秤座", "Libra"],
-  ["scorpio", "天蝎座", "Scorpio"],
-  ["sagittarius", "射手座", "Sagittarius"],
-  ["capricorn", "摩羯座", "Capricorn"],
-  ["aquarius", "水瓶座", "Aquarius"],
-  ["pisces", "双鱼座", "Pisces"],
+  ["aries", "白羊座", "Aries", "3.21 - 4.19"],
+  ["taurus", "金牛座", "Taurus", "4.20 - 5.20"],
+  ["gemini", "双子座", "Gemini", "5.21 - 6.21"],
+  ["cancer", "巨蟹座", "Cancer", "6.22 - 7.22"],
+  ["leo", "狮子座", "Leo", "7.23 - 8.22"],
+  ["virgo", "处女座", "Virgo", "8.23 - 9.22"],
+  ["libra", "天秤座", "Libra", "9.23 - 10.23"],
+  ["scorpio", "天蝎座", "Scorpio", "10.24 - 11.21"],
+  ["sagittarius", "射手座", "Sagittarius", "11.22 - 12.21"],
+  ["capricorn", "摩羯座", "Capricorn", "12.22 - 1.19"],
+  ["aquarius", "水瓶座", "Aquarius", "1.20 - 2.18"],
+  ["pisces", "双鱼座", "Pisces", "2.19 - 3.20"],
 ];
 
 const state = {
   sign: "aries",
   period: "daily",
   lastMode: "public",
-  lastPersonalPayload: null,
 };
 
 const signGrid = document.querySelector("#signGrid");
@@ -27,8 +26,8 @@ const actions = document.querySelector("#actions");
 const evidenceList = document.querySelector("#evidenceList");
 const reportPanel = document.querySelector(".report-panel");
 const askAnswer = document.querySelector("#askAnswer");
-const askSource = document.querySelector("#askSource");
 const quickQuestions = document.querySelector("#quickQuestions");
+const loader = document.querySelector("#loader");
 let currentReport = null;
 
 document.querySelector("#todayLabel").textContent = new Date().toLocaleDateString("zh-CN", {
@@ -47,10 +46,11 @@ function init() {
 function renderSigns() {
   signGrid.innerHTML = signs
     .map(
-      ([key, cn, en]) => `
+      ([key, cn, en, range]) => `
       <button class="sign-card ${key === state.sign ? "active" : ""}" data-sign="${key}">
         <b>${cn}</b>
         <span>${en}</span>
+        <small>${range}</small>
       </button>
     `,
     )
@@ -75,27 +75,6 @@ function bindEvents() {
 
   document.querySelector("#refreshButton").addEventListener("click", refresh);
 
-  document.querySelector("#personalForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const payload = {
-      name: formData.get("name") || null,
-      birth_date: formData.get("birth_date"),
-      birth_time: formData.get("birth_time") || null,
-      timezone: formData.get("timezone"),
-      latitude: Number(formData.get("latitude")),
-      longitude: Number(formData.get("longitude")),
-      period: state.period,
-    };
-    state.lastPersonalPayload = payload;
-    state.lastMode = "personal";
-    await fetchReport("/api/horoscope/personal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  });
-
   document.querySelector("#askForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const textarea = event.currentTarget.elements.question;
@@ -111,14 +90,6 @@ function bindEvents() {
 }
 
 async function refresh() {
-  if (state.lastMode === "personal" && state.lastPersonalPayload) {
-    await fetchReport("/api/horoscope/personal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...state.lastPersonalPayload, period: state.period }),
-    });
-    return;
-  }
   await loadPublic(state.sign);
 }
 
@@ -131,6 +102,7 @@ async function loadPublic(sign) {
 
 async function fetchReport(url, options = {}) {
   reportPanel.classList.add("is-loading");
+  loader.classList.add("active");
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
@@ -144,20 +116,20 @@ async function fetchReport(url, options = {}) {
     document.querySelector("#reportSummary").textContent = error.message;
   } finally {
     reportPanel.classList.remove("is-loading");
+    loader.classList.remove("active");
   }
 }
 
 function renderReport(data) {
   currentReport = data;
-  document.querySelector("#reportMode").textContent = data.mode === "personal" ? "个人化行运" : "大众运势";
+  document.querySelector("#reportMode").textContent = data.period.type === "daily" ? "今日星象" : "本周星象";
   document.querySelector("#reportTitle").textContent = `${data.subject} · ${data.period.type === "daily" ? "今日" : "本周"} ${data.overall_score}`;
   document.querySelector("#reportSummary").textContent = data.summary;
   document.querySelector("#disclaimer").textContent = `${data.disclaimer} ${data.ephemeris_notice || ""}`;
-  askSource.textContent = data.writer === "rules+llm" ? "LLM 润色摘要" : "规则摘要";
-  askAnswer.textContent = "你可以围绕事业、感情、财富、身心或某条相位继续追问。";
+  askAnswer.textContent = "星象已经展开。你可以把今天最在意的问题写下来，让星盘给出一段更贴近你的解释。";
 
   const deep = data.deep_reading || {};
-  document.querySelector("#deepHeadline").textContent = deep.headline || "等待星历信号";
+  document.querySelector("#deepHeadline").textContent = deep.headline || "等待星辰落位";
   document.querySelector("#deepWhy").textContent = deep.why_it_matters || "";
   document.querySelector("#deepBlindSpot").textContent = deep.blind_spot || "";
   document.querySelector("#deepBestMove").textContent = deep.best_move || "";
@@ -199,11 +171,11 @@ function renderQuickQuestions(questions) {
 
 async function askChart(question) {
   if (!currentReport) {
-    askAnswer.textContent = "请先生成一份星历报告。";
+    askAnswer.textContent = "请先选择一个星座，让星盘展开。";
     return;
   }
-  askAnswer.textContent = "正在根据当前星历整理回答...";
-  askSource.textContent = "生成中";
+  askAnswer.classList.add("thinking");
+  askAnswer.textContent = "星盘正在回声室里重新排列今日相位...";
   try {
     const response = await fetch("/api/horoscope/ask", {
       method: "POST",
@@ -216,10 +188,10 @@ async function askChart(question) {
     }
     const data = await response.json();
     askAnswer.textContent = data.answer;
-    askSource.textContent = data.source === "rules+llm" ? "星历 + LLM" : "星历规则";
   } catch (error) {
     askAnswer.textContent = error.message;
-    askSource.textContent = "失败";
+  } finally {
+    askAnswer.classList.remove("thinking");
   }
 }
 
