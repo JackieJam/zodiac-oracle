@@ -1,0 +1,24 @@
+.DS_Store
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local secrets and runtime config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Logs and local runtime output
+*.log
+logs/
+tmp/
+

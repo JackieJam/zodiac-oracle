@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>星盘日课</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="masthead">
+        <div>
+          <p class="kicker">Western Tropical Astrology</p>
+          <h1>星盘日课</h1>
+          <p class="lede">用行运依据生成今日与本周运势，先看 12 星座，再进入个人化报告。</p>
+        </div>
+        <div class="date-panel">
+          <span id="todayLabel"></span>
+          <div class="period-switch" aria-label="周期选择">
+            <button class="period active" data-period="daily">今日</button>
+            <button class="period" data-period="weekly">本周</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="zodiac-panel" aria-label="十二星座">
+          <div class="panel-heading">
+            <span>快速入口</span>
+            <strong>12 Signs</strong>
+          </div>
+          <div id="signGrid" class="sign-grid"></div>
+        </aside>
+
+        <section class="report-panel" aria-live="polite">
+          <div class="report-topline">
+            <span id="reportMode">大众运势</span>
+            <button id="refreshButton" type="button" title="重新生成">↻</button>
+          </div>
+          <h2 id="reportTitle">选择一个星座开始</h2>
+          <p id="reportSummary" class="summary">系统会返回总评、四项评分、行动建议和占星依据。</p>
+          <section class="deep-panel" aria-label="深度解读">
+            <div>
+              <span>今日切口</span>
+              <h3 id="deepHeadline">等待星历信号</h3>
+              <p id="deepWhy">选择星座或生成个人报告后，这里会把行运依据翻译成更具体的判断。</p>
+            </div>
+            <div class="deep-grid">
+              <article>
+                <b>盲区</b>
+                <p id="deepBlindSpot"></p>
+              </article>
+              <article>
+                <b>最佳动作</b>
+                <p id="deepBestMove"></p>
+              </article>
+              <article>
+                <b>微仪式</b>
+                <p id="deepRitual"></p>
+              </article>
+            </div>
+          </section>
+          <div id="scoreGrid" class="score-grid"></div>
+          <div class="report-columns">
+            <div>
+              <h3>重点提醒</h3>
+              <ul id="highlights"></ul>
+            </div>
+            <div>
+              <h3>行动建议</h3>
+              <ul id="actions"></ul>
+            </div>
+          </div>
+          <details class="evidence-box" open>
+            <summary>占星依据</summary>
+            <div id="evidenceList"></div>
+          </details>
+          <section class="ask-panel" aria-label="问星盘">
+            <div class="ask-heading">
+              <div>
+                <span>Ask the Transit</span>
+                <h3>问星盘</h3>
+              </div>
+              <small id="askSource">基于当前报告</small>
+            </div>
+            <div id="quickQuestions" class="quick-questions"></div>
+            <form id="askForm" class="ask-form">
+              <textarea name="question" rows="3" maxlength="240" placeholder="例如：今天感情上最该避开什么？"></textarea>
+              <button type="submit">追问</button>
+            </form>
+            <p id="askAnswer" class="ask-answer">你可以围绕事业、感情、财富、身心或某条相位继续追问。</p>
+          </section>
+          <p id="disclaimer" class="disclaimer"></p>
+        </section>
+
+        <aside class="personal-panel">
+          <div class="panel-heading">
+            <span>个人化</span>
+            <strong>Natal Transit</strong>
+          </div>
+          <form id="personalForm">
+            <label>
+              名称
+              <input name="name" placeholder="可选" maxlength="48" />
+            </label>
+            <label>
+              出生日期
+              <input name="birth_date" type="date" required />
+            </label>
+            <label>
+              出生时间
+              <input name="birth_time" type="time" />
+            </label>
+            <label>
+              时区
+              <input name="timezone" value="Asia/Shanghai" required />
+            </label>
+            <div class="two-fields">
+              <label>
+                纬度
+                <input name="latitude" type="number" step="0.001" value="31.230" required />
+              </label>
+              <label>
+                经度
+                <input name="longitude" type="number" step="0.001" value="121.474" required />
+              </label>
+            </div>
+            <button type="submit">生成个人报告</button>
+          </form>
+        </aside>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
