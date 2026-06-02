@@ -22,3 +22,8 @@ htmlcov/
 logs/
 tmp/
 
+# Runtime files
+horoscope_logs.db
+*.db-shm
+*.db-wal
+*.pyc

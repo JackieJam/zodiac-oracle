@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>星座运势</title>
+    <link rel="stylesheet" href="/horoscope/static/detail.css" />
+  </head>
+  <body>
+    <canvas id="starfield"></canvas>
+
+    <nav class="topbar">
+      <a href="/horoscope/static/index.html" class="back">← 返回</a>
+      <span id="navTitle">星座运势</span>
+      <button id="refreshBtn" title="刷新">↻</button>
+    </nav>
+
+    <main class="container" id="app">
+      <!-- Loading -->
+      <div class="loading" id="loader">
+        <div class="zodiac-wheel">
+          <div class="wheel-ring"></div>
+          <div class="wheel-ring"></div>
+          <span>♈</span><span>♉</span><span>♊</span><span>♋</span>
+          <span>♌</span><span>♍</span><span>♎</span><span>♏</span>
+          <span>♐</span><span>♑</span><span>♒</span><span>♓</span>
+          <div class="wheel-center">☉</div>
+        </div>
+        <p>星盘正在对准今日黄道</p>
+      </div>
+
+      <!-- Sign header -->
+      <div class="sign-header" id="signHeader">
+        <div class="sign-icon-large" id="signIconLarge"></div>
+        <h1 id="reportTitle"></h1>
+        <p class="summary" id="reportSummary"></p>
+      </div>
+
+      <!-- Deep reading -->
+      <section class="deep-panel">
+        <div>
+          <span>今日星门</span>
+          <h3 id="deepHeadline"></h3>
+          <p id="deepWhy"></p>
+        </div>
+        <div class="deep-grid">
+          <article>
+            <b>🌑 暗面提醒</b>
+            <p id="deepBlindSpot"></p>
+          </article>
+          <article>
+            <b>✨ 顺势而为</b>
+            <p id="deepBestMove"></p>
+          </article>
+          <article>
+            <b>🔮 今日小仪式</b>
+            <p id="deepRitual"></p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Score rings -->
+      <div class="score-ring-grid" id="scoreGrid"></div>
+
+      <!-- Highlights -->
+      <section class="report-section">
+        <h3>⭐ 星辰提醒</h3>
+        <ul id="highlights"></ul>
+      </section>
+
+      <!-- Actions -->
+      <section class="report-section">
+        <h3>🧭 今日指引</h3>
+        <ul id="actions"></ul>
+      </section>
+
+      <!-- Evidence / Transits -->
+      <details class="evidence-box" open>
+        <summary>🪐 行运相位</summary>
+        <div id="evidenceList"></div>
+      </details>
+
+      <!-- Oracle Chamber -->
+      <section class="ask-panel">
+        <div class="ask-panel-bg"></div>
+        <div class="ask-heading">
+          <div>
+            <span>Oracle Chamber</span>
+            <h3>星谕回声</h3>
+          </div>
+        </div>
+        <div id="quickQuestions" class="quick-questions"></div>
+        <form id="askForm" class="ask-form">
+          <textarea name="question" rows="3" maxlength="240"
+            placeholder="把你的困惑交给今日星象：感情、事业、选择、情绪都可以。"></textarea>
+          <button type="submit">听星谕</button>
+        </form>
+        <p id="askAnswer" class="ask-answer">
+          星象已经展开。你可以把今天最在意的问题写下来，让星盘给出一段更贴近你的解释。
+        </p>
+      </section>
+
+      <p id="disclaimer" class="disclaimer"></p>
+    </main>
+
+    <script>
+      /* ===== STARFIELD (same as index) ===== */
+      (function() {
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let shootingStars = [];
+        let w, h;
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+        function createStars() {
+          stars = [];
+          const count = Math.floor((w * h) / 3000);
+          for (let i = 0; i < count; i++) {
+            stars.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: Math.random() * 1.2 + 0.2,
+              alpha: Math.random() * 0.6 + 0.3,
+              da: (Math.random() - 0.5) * 0.006,
+              vx: (Math.random() - 0.5) * 0.05,
+              vy: (Math.random() - 0.5) * 0.03,
+            });
+          }
+        }
+        function spawnShootingStar() {
+          if (Math.random() > 0.002) return;
+          shootingStars.push({
+            x: Math.random() * w * 0.8,
+            y: Math.random() * h * 0.3,
+            len: Math.random() * 60 + 30,
+            speed: Math.random() * 3 + 2,
+            angle: Math.PI / 6 + Math.random() * 0.3,
+            alpha: 1, life: 1,
+          });
+        }
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+          const g1 = ctx.createRadialGradient(w*0.2,h*0.15,0,w*0.2,h*0.15,w*0.3);
+          g1.addColorStop(0,'rgba(118,217,196,0.025)'); g1.addColorStop(1,'transparent');
+          ctx.fillStyle = g1; ctx.fillRect(0,0,w,h);
+          const g2 = ctx.createRadialGradient(w*0.85,h*0.08,0,w*0.85,h*0.08,w*0.25);
+          g2.addColorStop(0,'rgba(215,255,113,0.02)'); g2.addColorStop(1,'transparent');
+          ctx.fillStyle = g2; ctx.fillRect(0,0,w,h);
+          for (const s of stars) {
+            s.alpha += s.da;
+            if (s.alpha > 0.9 || s.alpha < 0.15) s.da = -s.da;
+            s.x += s.vx; s.y += s.vy;
+            if (s.x < 0) s.x = w; if (s.x > w) s.x = 0;
+            if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(242,239,231,${s.alpha})`; ctx.fill();
+          }
+          spawnShootingStar();
+          for (let i = shootingStars.length - 1; i >= 0; i--) {
+            const ss = shootingStars[i];
+            ss.x += Math.cos(ss.angle)*ss.speed;
+            ss.y += Math.sin(ss.angle)*ss.speed;
+            ss.life -= 0.012; ss.alpha = ss.life;
+            if (ss.life <= 0) { shootingStars.splice(i,1); continue; }
+            const tx = ss.x - Math.cos(ss.angle)*ss.len;
+            const ty = ss.y - Math.sin(ss.angle)*ss.len;
+            const gr = ctx.createLinearGradient(tx,ty,ss.x,ss.y);
+            gr.addColorStop(0,'transparent'); gr.addColorStop(1,`rgba(242,239,231,${ss.alpha})`);
+            ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(ss.x,ss.y);
+            ctx.strokeStyle = gr; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.beginPath(); ctx.arc(ss.x,ss.y,1.8,0,Math.PI*2);
+            ctx.fillStyle = `rgba(215,255,113,${ss.alpha*0.7})`; ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+        resize(); createStars(); draw();
+        window.addEventListener('resize', ()=>{ resize(); createStars(); });
+      })();
+
+      /* ===== MAIN APP ===== */
+      const params = new URLSearchParams(location.search);
+      const sign = params.get("sign") || "aries";
+      const period = params.get("period") || "daily";
+      let currentReport = null;
+
+      const signNames = {
+        aries:"白羊座", taurus:"金牛座", gemini:"双子座", cancer:"巨蟹座",
+        leo:"狮子座", virgo:"处女座", libra:"天秤座", scorpio:"天蝎座",
+        sagittarius:"射手座", capricorn:"摩羯座", aquarius:"水瓶座", pisces:"双鱼座"
+      };
+
+      const signElements = {
+        aries:"fire", taurus:"earth", gemini:"air", cancer:"water",
+        leo:"fire", virgo:"earth", libra:"air", scorpio:"water",
+        sagittarius:"fire", capricorn:"earth", aquarius:"air", pisces:"water"
+      };
+
+      const signIcons = {
+        aries: "♈", taurus: "♉", gemini: "♊", cancer: "♋",
+        leo: "♌", virgo: "♍", libra: "♎", scorpio: "♏",
+        sagittarius: "♐", capricorn: "♑", aquarius: "♒", pisces: "♓"
+      };
+
+      const planetIcons = {
+        "Sun": "☉", "Moon": "☽", "Mercury": "☿", "Venus": "♀",
+        "Mars": "♂", "Jupiter": "♃", "Saturn": "♄", "Uranus": "♅",
+        "Neptune": "♆", "Pluto": "♇", "North Node": "☊", "South Node": "☋",
+        "Chiron": "⚷", "Lilith": "⚸"
+      };
+
+      const element = signElements[sign] || "fire";
+      document.documentElement.setAttribute("data-element", element);
+      document.getElementById("navTitle").textContent = signNames[sign] || sign;
+      document.getElementById("signIconLarge").textContent = signIcons[sign] || "★";
+      document.title = (signNames[sign] || "") + " 运势";
+
+      async function load() {
+        const loader = document.getElementById("loader");
+        loader.classList.add("active");
+        try {
+          const res = await fetch(`/horoscope/api/horoscope/public?sign=${encodeURIComponent(sign)}&period=${period}`);
+          if (!res.ok) throw new Error("请求失败");
+          const data = await res.json();
+          render(data);
+        } catch (e) {
+          document.getElementById("reportTitle").textContent = "加载失败";
+          document.getElementById("reportSummary").textContent = e.message;
+        } finally {
+          loader.classList.remove("active");
+        }
+      }
+
+      function render(data) {
+        currentReport = data;
+        document.getElementById("reportTitle").textContent =
+          `${data.subject} · ${data.period.type === "daily" ? "今日" : "本周"} ${data.overall_score}`;
+        document.getElementById("reportSummary").textContent = data.summary;
+        document.getElementById("disclaimer").textContent = data.disclaimer || "";
+
+        const deep = data.deep_reading || {};
+        document.getElementById("deepHeadline").textContent = deep.headline || "";
+        document.getElementById("deepWhy").textContent = deep.why_it_matters || "";
+        document.getElementById("deepBlindSpot").textContent = deep.blind_spot || "";
+        document.getElementById("deepBestMove").textContent = deep.best_move || "";
+        document.getElementById("deepRitual").textContent = deep.micro_ritual || "";
+
+        renderQuickQuestions(data.suggested_questions || deep.reflection_questions || []);
+
+        // Ring progress scores
+        document.getElementById("scoreGrid").innerHTML = Object.values(data.scores)
+          .map(s => {
+            const pct = Math.min(100, Math.max(0, s.score));
+            const circumference = 2 * Math.PI * 36;
+            const offset = circumference * (1 - pct / 100);
+            const color = pct >= 70 ? 'var(--good)' : pct >= 40 ? 'var(--mid)' : 'var(--low)';
+            return `
+              <div class="score-ring-card">
+                <svg class="score-ring" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" />
+                  <circle class="ring-fill" cx="40" cy="40" r="36"
+                    style="stroke-dasharray:${circumference};stroke-dashoffset:${offset};stroke:${color}" />
+                </svg>
+                <div class="score-ring-label">
+                  <strong>${s.score}</strong>
+                  <span>${s.label}</span>
+                </div>
+              </div>`;
+          }).join("");
+
+        document.getElementById("highlights").innerHTML =
+          data.highlights.map(h => `<li>${h}</li>`).join("");
+        document.getElementById("actions").innerHTML =
+          data.actions.map(a => `<li>${a}</li>`).join("");
+
+        document.getElementById("evidenceList").innerHTML = data.evidence
+          .map(e => {
+            const planetKey = Object.keys(planetIcons).find(k =>
+              e.planet.toLowerCase().includes(k.toLowerCase()));
+            const icon = planetKey ? planetIcons[planetKey] : "✦";
+            return `<div class="evidence-item">
+              <span class="evidence-planet-icon">${icon}</span>
+              <div class="evidence-text">
+                <strong>${e.planet} ${e.aspect_cn}</strong>
+                <span>${e.description} 主题：${e.theme}</span>
+              </div>
+              <span class="confidence">${Math.round(e.confidence * 100)}%</span>
+            </div>`;
+          }).join("");
+      }
+
+      function renderQuickQuestions(questions) {
+        document.getElementById("quickQuestions").innerHTML = questions
+          .slice(0, 4)
+          .map(q => `<button type="button" data-question="${escAttr(q)}">${esc(q)}</button>`)
+          .join("");
+      }
+
+      document.getElementById("askForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const ta = e.currentTarget.elements.question;
+        if (!currentReport) return;
+        const ans = document.getElementById("askAnswer");
+        ans.classList.add("thinking");
+        ans.textContent = "星盘正在回声室里重新排列今日相位...";
+        try {
+          const res = await fetch("/horoscope/api/horoscope/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ report: currentReport, question: ta.value }),
+          });
+          const data = await res.json();
+          ans.textContent = data.answer;
+        } catch (err) {
+          ans.textContent = err.message;
+        } finally {
+          ans.classList.remove("thinking");
+        }
+      });
+
+      document.getElementById("quickQuestions").addEventListener("click", async (e) => {
+        const btn = e.target.closest("[data-question]");
+        if (!btn) return;
+        document.querySelector("#askForm textarea").value = btn.dataset.question;
+        document.getElementById("askForm").dispatchEvent(new Event("submit"));
+      });
+
+      document.getElementById("refreshBtn").addEventListener("click", load);
+
+      function esc(s) { return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+      function escAttr(s) { return esc(s).replaceAll('"',"&quot;").replaceAll("'","&#039;").replaceAll("`","&#096;"); }
+
+      load();
+    </script>
+  </body>
+</html>

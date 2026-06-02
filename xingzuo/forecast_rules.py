@@ -34,7 +34,7 @@ THEME_TO_AREA = {
     "机会扩张": "wealth",
     "贵人资源": "career",
     "信念感": "wellness",
-    "责任边界": "career",
+    "现实考验": "career",
     "结构压力": "wellness",
     "长期承诺": "relationship",
     "变化突破": "career",
@@ -55,13 +55,21 @@ class Forecast:
 
 
 class ForecastRuleEngine:
+    # 分数含义:
+    #   0-39  凶  — 重大压力，宜守不宜攻
+    #  40-49  弱  — 阻力明显，需谨慎行事
+    #  50-59  平  — 中性日常，维持节奏即可
+    #  60-69  稳  — 略有助力，可适度推进
+    #  70-79  顺  — 信号积极，适合主动出击
+    #  80-100 吉  — 强力支撑，抓住机会发力
+
     def score(self, context: AstroContext) -> Forecast:
-        raw_scores = {area: 68.0 for area in AREAS}
+        raw_scores = {area: 50.0 for area in AREAS}
         for factor in context.factors:
             area = THEME_TO_AREA.get(factor.theme, "career")
             raw_scores[area] += self._factor_delta(factor)
 
-        scores = {area: int(max(35, min(95, round(value)))) for area, value in raw_scores.items()}
+        scores = {area: int(max(20, min(95, round(value)))) for area, value in raw_scores.items()}
         overall = int(round(sum(scores.values()) / len(scores)))
         leading = sorted(context.factors, key=lambda item: item.weight, reverse=True)[:3]
         highlights = [self._highlight_for(factor) for factor in leading]
@@ -92,12 +100,16 @@ class ForecastRuleEngine:
 
     @staticmethod
     def _factor_delta(factor: AstroFactor) -> float:
+        # weight: 0.2-1.0 (基于容许度与最大容许度的比值)
+        # 支撑相位(拱/六合): 正向调整
+        # 压力相位(刑/冲): 等量负向调整，不打折
+        # 中性相位(合相): 轻微正向(取决于参与行星)
         base = factor.weight * 15
         if factor.polarity == "supportive":
             return base
         if factor.polarity == "challenging":
-            return -base * 0.72
-        return base * 0.18
+            return -base
+        return base * 0.2
 
     @staticmethod
     def _highlight_for(factor: AstroFactor) -> str:

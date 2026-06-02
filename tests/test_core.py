@@ -108,10 +108,25 @@ def test_deepseek_config_takes_priority(monkeypatch):
 def test_deepseek_key_can_come_from_keychain(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_API_KEY_FILE", raising=False)
+    monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
     monkeypatch.setattr(
         "xingzuo.secrets._read_macos_keychain",
         lambda service: "keychain-test" if service == DEEPSEEK_KEYCHAIN_SERVICE else None,
     )
     config = ContentWriter._llm_config()
     assert config["api_key"] == "keychain-test"
+    assert config["model"] == "deepseek-v4-flash"
+
+
+def test_deepseek_key_can_come_from_file(monkeypatch, tmp_path):
+    key_file = tmp_path / "deepseek.key"
+    key_file.write_text("file-test\n")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
+    monkeypatch.setenv("DEEPSEEK_API_KEY_FILE", str(key_file))
+    monkeypatch.setattr("xingzuo.secrets._read_macos_keychain", lambda service: None)
+    config = ContentWriter._llm_config()
+    assert config["api_key"] == "file-test"
     assert config["model"] == "deepseek-v4-flash"

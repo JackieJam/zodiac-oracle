@@ -340,7 +340,7 @@ class AstroEngine:
             "Venus": "亲密关系",
             "Mars": "行动力",
             "Jupiter": "机会扩张",
-            "Saturn": "责任边界",
+            "Saturn": "现实考验",
             "Uranus": "变化突破",
             "Neptune": "直觉想象",
             "Pluto": "深层转化",
