@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import subprocess
 
 
 DEEPSEEK_KEYCHAIN_SERVICE = "xingzuo.deepseek"
+DEEPSEEK_KEY_FILE_ENV = "DEEPSEEK_API_KEY_FILE"
 
 
 def get_secret(name: str) -> str | None:
@@ -13,9 +15,22 @@ def get_secret(name: str) -> str | None:
         return value
 
     if name == "DEEPSEEK_API_KEY":
+        key_file = os.getenv(DEEPSEEK_KEY_FILE_ENV)
+        if key_file:
+            value = _read_secret_file(Path(key_file))
+            if value:
+                return value
         return _read_macos_keychain(DEEPSEEK_KEYCHAIN_SERVICE)
 
     return None
+
+
+def _read_secret_file(path: Path) -> str | None:
+    try:
+        secret = path.read_text().strip()
+    except OSError:
+        return None
+    return secret or None
 
 
 def _read_macos_keychain(service: str) -> str | None:

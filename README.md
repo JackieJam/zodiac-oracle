@@ -32,6 +32,7 @@ uv run --with fastapi --with pydantic --with pyswisseph --with pytest --with htt
 ## 环境变量
 
 - `DEEPSEEK_API_KEY`：可选。推荐存到 macOS Keychain；为空时会尝试从 Keychain 读取，仍为空则使用规则模板输出。
+- `DEEPSEEK_API_KEY_FILE`：可选。服务器部署时可指向只允许当前用户读取的密钥文件，文件内容为 DeepSeek key。
 - `DEEPSEEK_MODEL`：可选，默认 `deepseek-v4-flash`；需要更强推理可设为 `deepseek-v4-pro`。
 - `DEEPSEEK_CHAT_COMPLETIONS_URL`：可选，默认 `https://api.deepseek.com/chat/completions`。
 - `OPENAI_API_KEY` / `OPENAI_MODEL` / `OPENAI_CHAT_COMPLETIONS_URL`：仍兼容；如果同时配置 DeepSeek 和 OpenAI，优先使用 DeepSeek。
@@ -48,6 +49,13 @@ uv run app.py
 
 ```bash
 export DEEPSEEK_API_KEY="你的 DeepSeek Key"
+uv run app.py
+```
+
+服务器部署时可以把密钥放在项目外部，并通过环境变量指向该文件：
+
+```bash
+export DEEPSEEK_API_KEY_FILE="/path/to/deepseek.key"
 uv run app.py
 ```
 

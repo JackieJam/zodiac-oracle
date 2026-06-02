@@ -142,7 +142,7 @@ h1 {
 }
 
 .sign-card {
-  min-height: 96px;
+  min-height: 140px;
   border: 1px solid var(--line);
   background: #121714;
   color: var(--ink);
@@ -150,6 +150,33 @@ h1 {
   text-align: left;
   cursor: pointer;
   transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.sign-icon {
+  display: block;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 4px;
+}
+
+.sign-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 160ms ease;
+}
+
+.sign-card:hover .sign-icon svg,
+.sign-card.active .sign-icon svg {
+  stroke: var(--accent);
 }
 
 .sign-card:hover,
@@ -558,6 +585,7 @@ form button {
   pointer-events: none;
 }
 
+/* ===== Tablet (761–1120px) ===== */
 @media (max-width: 1120px) {
   .workspace {
     grid-template-columns: 1fr;
@@ -568,28 +596,295 @@ form button {
   }
 }
 
+/* ===== Mobile (≤760px) ===== */
 @media (max-width: 760px) {
-  .shell {
-    padding: 18px;
-  }
+  /*
+   * Complete mobile redesign.
+   * Shell becomes a flat CSS Grid — masthead, zodiac-panel, report-panel
+   * are all direct grid children (workspace uses display:contents).
+   * No negative margins, no overflow tricks, no calc() hacks.
+   */
 
-  .masthead,
-  .report-columns,
-  .deep-grid,
-  .ask-form {
+  .shell {
+    padding: 0;
+    display: grid;
     grid-template-columns: 1fr;
   }
 
-  .date-panel {
-    justify-items: start;
+  /* Masthead: compact single-line header */
+  .masthead {
+    min-height: auto;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
   }
 
-  .sign-grid,
+  .kicker { display: none; }
+
+  h1 {
+    font-size: 30px;
+    line-height: 1.2;
+  }
+
+  .lede { display: none; }
+
+  .date-panel {
+    justify-items: end;
+    gap: 6px;
+  }
+
+  #todayLabel {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .period-switch {
+    grid-template-columns: repeat(2, 64px);
+  }
+
+  .period {
+    min-height: 36px;
+    font-size: 14px;
+  }
+
+  /* Workspace: transparent wrapper — children become grid items */
+  .workspace {
+    display: contents;
+  }
+
+  /* Zodiac panel: horizontal scroll strip, sticky */
+  .zodiac-panel {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 8px 16px;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: rgba(8, 11, 10, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    order: -1;
+  }
+
+  .panel-heading {
+    margin-bottom: 6px;
+  }
+
+  .panel-heading strong { display: none; }
+
+  .panel-heading span {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Sign grid: horizontal scroll */
+  .sign-grid {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .sign-grid::-webkit-scrollbar { display: none; }
+
+  .sign-card {
+    flex-shrink: 0;
+    width: 66px;
+    min-height: auto;
+    padding: 8px 4px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    scroll-snap-align: start;
+    border: 1px solid transparent;
+    background: transparent;
+  }
+
+  .sign-card:hover { transform: none; }
+
+  .sign-card.active {
+    border-color: var(--accent);
+    background: rgba(215, 255, 113, 0.08);
+  }
+
+  .sign-icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 0;
+  }
+
+  .sign-card b {
+    font-size: 14px;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .sign-card span,
+  .sign-card small { display: none; }
+
+  /* Report panel: full-width reading area */
+  .report-panel {
+    min-height: auto;
+    padding: 16px;
+    border: none;
+    background: transparent;
+  }
+
+  .report-topline {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #reportMode { font-size: 12px; }
+
+  #refreshButton {
+    width: 32px;
+    min-height: 32px;
+    font-size: 16px;
+  }
+
+  h2 {
+    margin-top: 12px;
+    font-size: 28px;
+  }
+
+  .summary {
+    font-size: 17px;
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+
+  /* Deep panel */
+  .deep-panel {
+    padding: 12px;
+    margin-top: 14px;
+  }
+
+  .deep-panel span { font-size: 12px; }
+
+  .deep-panel h3,
+  .ask-heading h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .deep-panel p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .deep-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .deep-grid article {
+    min-height: auto;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* Score grid */
   .score-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 14px 0;
+  }
+
+  .score-card { padding: 10px; }
+
+  .score-card span { font-size: 13px; }
+
+  .score-card strong {
+    font-size: 32px;
+  }
+
+  /* Report columns */
+  .report-columns {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .report-columns li {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Evidence */
+  .evidence-box {
+    margin-top: 14px;
   }
 
   .evidence-item {
     grid-template-columns: 1fr;
+    gap: 4px;
+    font-size: 16px;
+    padding: 10px 0;
   }
+
+  /* Ask panel */
+  .ask-panel {
+    padding: 12px;
+    margin-top: 14px;
+  }
+
+  .ask-panel::before {
+    font-size: 60px;
+    right: 8px;
+    bottom: -8px;
+  }
+
+  .ask-form {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .ask-form textarea {
+    min-height: 72px;
+  }
+
+  .ask-form button {
+    min-height: 44px;
+  }
+
+  .ask-answer {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .disclaimer {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  /* Loader */
+  .astro-loader { gap: 12px; }
+
+  .zodiac-wheel { width: 100px; }
+
+  .zodiac-wheel span {
+    width: 16px;
+    height: 16px;
+    margin: -8px;
+    font-size: 12px;
+    transform: rotate(calc(var(--i) * 30deg)) translateY(-46px) rotate(calc(var(--i) * -30deg));
+  }
+
+  .zodiac-wheel::after { inset: 40px; }
+
+  .astro-loader p { font-size: 10px; }
 }

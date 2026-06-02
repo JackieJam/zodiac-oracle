@@ -4,104 +4,654 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>星盘日课</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f2efe7;
+        --muted: #a9b1aa;
+        --line: rgba(242, 239, 231, 0.12);
+        --accent: #d7ff71;
+        --accent-2: #76d9c4;
+        /* Four Elements */
+        --fire: #ff6b4a;
+        --fire-glow: rgba(255, 107, 74, 0.35);
+        --earth: #8bc34a;
+        --earth-glow: rgba(139, 195, 74, 0.35);
+        --air: #64b5f6;
+        --air-glow: rgba(100, 181, 246, 0.35);
+        --water: #ab47bc;
+        --water-glow: rgba(171, 71, 188, 0.35);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        min-height: 100vh;
+        background: #060a08;
+        color: var(--ink);
+        font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* ===== STARFIELD CANVAS ===== */
+      #starfield {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* ===== MAIN CONTENT ===== */
+      .page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        padding: 0 16px 48px;
+      }
+
+      /* ===== HEADER ===== */
+      header {
+        text-align: center;
+        padding: 36px 0 28px;
+        position: relative;
+      }
+
+      .zodiac-wheel-container {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 20px;
+        position: relative;
+      }
+
+      .zodiac-wheel {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        animation: wheelSpin 60s linear infinite;
+      }
+
+      .zodiac-wheel-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1px solid rgba(215, 255, 113, 0.2);
+      }
+
+      .zodiac-wheel-ring:nth-child(2) {
+        inset: 16px;
+        border-color: rgba(118, 217, 196, 0.15);
+        animation: wheelSpin 45s linear infinite reverse;
+      }
+
+      .zodiac-wheel-ring:nth-child(3) {
+        inset: 32px;
+        border-color: rgba(242, 239, 231, 0.1);
+      }
+
+      .zodiac-wheel .wheel-symbol {
+        position: absolute;
+        left: 50%; top: 50%;
+        width: 22px; height: 22px;
+        margin: -11px;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        color: var(--muted);
+        transform: rotate(calc(var(--i) * 30deg)) translateY(-68px) rotate(calc(var(--i) * -30deg));
+        text-shadow: 0 0 8px rgba(215, 255, 113, 0.3);
+      }
+
+      .zodiac-wheel-center {
+        position: absolute;
+        left: 50%; top: 50%;
+        width: 40px; height: 40px;
+        margin: -20px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--accent) 0%, rgba(215, 255, 113, 0.15) 60%, transparent 100%);
+        box-shadow: 0 0 30px rgba(215, 255, 113, 0.3), 0 0 60px rgba(215, 255, 113, 0.1);
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+      }
+
+      @keyframes wheelSpin { to { transform: rotate(360deg); } }
+
+      .kicker {
+        color: var(--accent-2);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      h1 {
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 36px;
+        font-weight: 500;
+        line-height: 1.2;
+        background: linear-gradient(135deg, var(--ink) 40%, var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .date {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      /* ===== PERIOD BAR ===== */
+      .period-bar {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 24px;
+      }
+
+      .period-bar button {
+        padding: 10px 28px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255,255,255,0.03);
+        color: var(--ink);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
+      }
+
+      .period-bar button:hover {
+        border-color: var(--accent-2);
+        background: rgba(118, 217, 196, 0.06);
+      }
+
+      .period-bar button.active {
+        background: var(--accent);
+        color: #0a0e08;
+        border-color: var(--accent);
+        font-weight: 600;
+        box-shadow: 0 0 20px rgba(215, 255, 113, 0.3);
+      }
+
+      /* ===== ELEMENT LEGEND ===== */
+      .element-legend {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        margin-bottom: 20px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .element-legend span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .element-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      /* ===== ZODIAC GRID ===== */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 22px 12px 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(12, 16, 14, 0.7);
+        text-decoration: none;
+        color: var(--ink);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+        overflow: hidden;
+        /* entrance animation */
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+        animation: cardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        backdrop-filter: blur(6px);
+      }
+
+      @keyframes cardEnter {
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      /* Hover glow per element */
+      .card[data-element="fire"]:hover,
+      .card[data-element="fire"]:active {
+        border-color: var(--fire);
+        box-shadow: 0 0 24px var(--fire-glow), inset 0 0 20px rgba(255, 107, 74, 0.05);
+        background: rgba(255, 107, 74, 0.06);
+        transform: translateY(-4px) scale(1.02);
+      }
+      .card[data-element="earth"]:hover,
+      .card[data-element="earth"]:active {
+        border-color: var(--earth);
+        box-shadow: 0 0 24px var(--earth-glow), inset 0 0 20px rgba(139, 195, 74, 0.05);
+        background: rgba(139, 195, 74, 0.06);
+        transform: translateY(-4px) scale(1.02);
+      }
+      .card[data-element="air"]:hover,
+      .card[data-element="air"]:active {
+        border-color: var(--air);
+        box-shadow: 0 0 24px var(--air-glow), inset 0 0 20px rgba(100, 181, 246, 0.05);
+        background: rgba(100, 181, 246, 0.06);
+        transform: translateY(-4px) scale(1.02);
+      }
+      .card[data-element="water"]:hover,
+      .card[data-element="water"]:active {
+        border-color: var(--water);
+        box-shadow: 0 0 24px var(--water-glow), inset 0 0 20px rgba(171, 71, 188, 0.05);
+        background: rgba(171, 71, 188, 0.06);
+        transform: translateY(-4px) scale(1.02);
+      }
+
+      /* Constellation pattern overlay */
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
+        background:
+          radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 100%),
+          radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.1) 0%, transparent 100%),
+          radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 100%),
+          radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.08) 0%, transparent 100%);
+      }
+      .card:hover::before { opacity: 1; }
+
+      .card .icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+      }
+
+      .card .icon svg {
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: var(--muted);
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: stroke 0.3s ease, filter 0.3s ease;
+      }
+
+      .card:hover .icon svg {
+        filter: drop-shadow(0 0 6px currentColor);
+      }
+      .card[data-element="fire"]:hover .icon svg { stroke: var(--fire); }
+      .card[data-element="earth"]:hover .icon svg { stroke: var(--earth); }
+      .card[data-element="air"]:hover .icon svg { stroke: var(--air); }
+      .card[data-element="water"]:hover .icon svg { stroke: var(--water); }
+
+      .card .name {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
+      .card .en {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card .range {
+        font-size: 12px;
+        letter-spacing: 0.02em;
+      }
+      .card[data-element="fire"] .range { color: var(--fire); }
+      .card[data-element="earth"] .range { color: var(--earth); }
+      .card[data-element="air"] .range { color: var(--air); }
+      .card[data-element="water"] .range { color: var(--water); }
+
+      /* Element badge */
+      .card .element-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 8px;
+        letter-spacing: 0.06em;
+        opacity: 0.5;
+      }
+      .card[data-element="fire"] .element-badge { color: var(--fire); background: rgba(255,107,74,0.1); }
+      .card[data-element="earth"] .element-badge { color: var(--earth); background: rgba(139,195,74,0.1); }
+      .card[data-element="air"] .element-badge { color: var(--air); background: rgba(100,181,246,0.1); }
+      .card[data-element="water"] .element-badge { color: var(--water); background: rgba(171,71,188,0.1); }
+
+      /* ===== FOOTER ===== */
+      .footer {
+        text-align: center;
+        margin-top: 36px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+        max-width: 440px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .footer p {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .footer .home-link {
+        display: inline-block;
+        margin-top: 12px;
+        color: var(--accent-2);
+        text-decoration: none;
+        font-size: 13px;
+        padding: 6px 16px;
+        border: 1px solid rgba(118, 217, 196, 0.3);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+      }
+      .footer .home-link:hover {
+        background: rgba(118, 217, 196, 0.08);
+        border-color: var(--accent-2);
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 380px) {
+        .grid { gap: 10px; }
+        .card { padding: 16px 8px 14px; }
+        h1 { font-size: 28px; }
+        .zodiac-wheel-container { width: 120px; height: 120px; }
+        .zodiac-wheel .wheel-symbol {
+          transform: rotate(calc(var(--i) * 30deg)) translateY(-50px) rotate(calc(var(--i) * -30deg));
+          font-size: 12px;
+        }
+      }
+
+      @media (min-width: 600px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+          max-width: 600px;
+        }
+      }
+
+      @media (min-width: 900px) {
+        .grid {
+          grid-template-columns: repeat(4, 1fr);
+          max-width: 800px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main class="shell">
-      <section class="masthead">
-        <div>
-          <p class="kicker">Zodiac Oracle</p>
-          <h1>星盘日课</h1>
-          <p class="lede">让今日星象落到你的太阳星座：先按生日找到星座，再听一段属于今天的星辰提示。</p>
+    <canvas id="starfield"></canvas>
+
+    <div class="page">
+      <header>
+        <div class="zodiac-wheel-container">
+          <div class="zodiac-wheel">
+            <div class="zodiac-wheel-ring"></div>
+            <div class="zodiac-wheel-ring"></div>
+            <div class="zodiac-wheel-ring"></div>
+            <span class="wheel-symbol" style="--i:0">♈</span>
+            <span class="wheel-symbol" style="--i:1">♉</span>
+            <span class="wheel-symbol" style="--i:2">♊</span>
+            <span class="wheel-symbol" style="--i:3">♋</span>
+            <span class="wheel-symbol" style="--i:4">♌</span>
+            <span class="wheel-symbol" style="--i:5">♍</span>
+            <span class="wheel-symbol" style="--i:6">♎</span>
+            <span class="wheel-symbol" style="--i:7">♏</span>
+            <span class="wheel-symbol" style="--i:8">♐</span>
+            <span class="wheel-symbol" style="--i:9">♑</span>
+            <span class="wheel-symbol" style="--i:10">♒</span>
+            <span class="wheel-symbol" style="--i:11">♓</span>
+            <div class="zodiac-wheel-center">☉</div>
+          </div>
         </div>
-        <div class="date-panel">
-          <span id="todayLabel"></span>
-          <div class="period-switch" aria-label="周期选择">
-            <button class="period active" data-period="daily">今日</button>
-            <button class="period" data-period="weekly">本周</button>
-          </div>
-        </div>
-      </section>
+        <p class="kicker">Zodiac Oracle</p>
+        <h1>星盘日课</h1>
+        <div class="date" id="todayLabel"></div>
+      </header>
 
-      <section class="workspace">
-        <aside class="zodiac-panel" aria-label="十二星座">
-          <div class="panel-heading">
-            <span>十二星宫</span>
-            <strong>按生日选择</strong>
-          </div>
-          <div id="signGrid" class="sign-grid"></div>
-        </aside>
+      <div class="period-bar">
+        <button class="active" data-period="daily">今日运势</button>
+        <button data-period="weekly">本周运势</button>
+      </div>
 
-        <section class="report-panel" aria-live="polite">
-          <div class="report-topline">
-            <span id="reportMode">星象简报</span>
-            <button id="refreshButton" type="button" title="重新观测星象">↻</button>
-          </div>
-          <div id="loader" class="astro-loader" aria-hidden="true">
-            <div class="zodiac-wheel">
-              <span>♈</span><span>♉</span><span>♊</span><span>♋</span>
-              <span>♌</span><span>♍</span><span>♎</span><span>♏</span>
-              <span>♐</span><span>♑</span><span>♒</span><span>♓</span>
-            </div>
-            <p>星盘正在对准今日黄道</p>
-          </div>
-          <h2 id="reportTitle">选择一个星座开始</h2>
-          <p id="reportSummary" class="summary">这里会显现今日星势、能量分布、星辰提醒和可追问的星谕。</p>
-          <section class="deep-panel" aria-label="星象启示">
-            <div>
-              <span>今日星门</span>
-              <h3 id="deepHeadline">等待星辰落位</h3>
-              <p id="deepWhy">选择星座后，这里会把行运相位翻译成今日最值得留意的星象暗示。</p>
-            </div>
-            <div class="deep-grid">
-              <article>
-                <b>暗面提醒</b>
-                <p id="deepBlindSpot"></p>
-              </article>
-              <article>
-                <b>顺势而为</b>
-                <p id="deepBestMove"></p>
-              </article>
-              <article>
-                <b>今日小仪式</b>
-                <p id="deepRitual"></p>
-              </article>
-            </div>
-          </section>
-          <div id="scoreGrid" class="score-grid"></div>
-          <div class="report-columns">
-            <div>
-              <h3>星辰提醒</h3>
-              <ul id="highlights"></ul>
-            </div>
-            <div>
-              <h3>今日指引</h3>
-              <ul id="actions"></ul>
-            </div>
-          </div>
-          <details class="evidence-box" open>
-            <summary>行运相位</summary>
-            <div id="evidenceList"></div>
-          </details>
-          <section class="ask-panel" aria-label="星谕回声">
-            <div class="ask-heading">
-              <div>
-                <span>Oracle Chamber</span>
-                <h3>星谕回声</h3>
-              </div>
-            </div>
-            <div id="quickQuestions" class="quick-questions"></div>
-            <form id="askForm" class="ask-form">
-              <textarea name="question" rows="3" maxlength="240" placeholder="把你的困惑交给今日星象：感情、事业、选择、情绪都可以。"></textarea>
-              <button type="submit">听星谕</button>
-            </form>
-            <p id="askAnswer" class="ask-answer">星象已经展开。你可以把今天最在意的问题写下来，让星盘给出一段更贴近你的解释。</p>
-          </section>
-          <p id="disclaimer" class="disclaimer"></p>
-        </section>
+      <div class="element-legend">
+        <span><i class="element-dot" style="background:var(--fire)"></i>火</span>
+        <span><i class="element-dot" style="background:var(--earth)"></i>土</span>
+        <span><i class="element-dot" style="background:var(--air)"></i>风</span>
+        <span><i class="element-dot" style="background:var(--water)"></i>水</span>
+      </div>
 
-      </section>
-    </main>
-    <script src="/static/app.js"></script>
+      <div class="grid" id="signGrid"></div>
+
+      <div class="footer">
+        <p>基于西洋占星的真实星历与规则解译模型<br>仅供娱乐参考，不构成专业建议</p>
+        <a href="/" class="home-link">← 返回首页</a>
+      </div>
+    </div>
+
+    <script>
+      /* ===== STARFIELD ===== */
+      (function() {
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let shootingStars = [];
+        let w, h;
+
+        function resize() {
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+        }
+
+        function createStars() {
+          stars = [];
+          const count = Math.floor((w * h) / 2400);
+          for (let i = 0; i < count; i++) {
+            stars.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: Math.random() * 1.4 + 0.3,
+              alpha: Math.random() * 0.7 + 0.3,
+              da: (Math.random() - 0.5) * 0.008,
+              vx: (Math.random() - 0.5) * 0.08,
+              vy: (Math.random() - 0.5) * 0.04,
+            });
+          }
+        }
+
+        function spawnShootingStar() {
+          if (Math.random() > 0.003) return;
+          shootingStars.push({
+            x: Math.random() * w * 0.8,
+            y: Math.random() * h * 0.4,
+            len: Math.random() * 80 + 40,
+            speed: Math.random() * 4 + 3,
+            angle: Math.PI / 6 + Math.random() * 0.3,
+            alpha: 1,
+            life: 1,
+          });
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, w, h);
+
+          // Nebula glow
+          const grd1 = ctx.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, w * 0.3);
+          grd1.addColorStop(0, 'rgba(118, 217, 196, 0.03)');
+          grd1.addColorStop(1, 'transparent');
+          ctx.fillStyle = grd1;
+          ctx.fillRect(0, 0, w, h);
+
+          const grd2 = ctx.createRadialGradient(w * 0.85, h * 0.08, 0, w * 0.85, h * 0.08, w * 0.25);
+          grd2.addColorStop(0, 'rgba(215, 255, 113, 0.025)');
+          grd2.addColorStop(1, 'transparent');
+          ctx.fillStyle = grd2;
+          ctx.fillRect(0, 0, w, h);
+
+          // Stars
+          for (const s of stars) {
+            s.alpha += s.da;
+            if (s.alpha > 1 || s.alpha < 0.15) s.da = -s.da;
+            s.x += s.vx;
+            s.y += s.vy;
+            if (s.x < 0) s.x = w;
+            if (s.x > w) s.x = 0;
+            if (s.y < 0) s.y = h;
+            if (s.y > h) s.y = 0;
+
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(242, 239, 231, ${s.alpha})`;
+            ctx.fill();
+          }
+
+          // Shooting stars
+          spawnShootingStar();
+          for (let i = shootingStars.length - 1; i >= 0; i--) {
+            const ss = shootingStars[i];
+            ss.x += Math.cos(ss.angle) * ss.speed;
+            ss.y += Math.sin(ss.angle) * ss.speed;
+            ss.life -= 0.015;
+            ss.alpha = ss.life;
+
+            if (ss.life <= 0) {
+              shootingStars.splice(i, 1);
+              continue;
+            }
+
+            const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+            const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+
+            const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+            grad.addColorStop(0, 'transparent');
+            grad.addColorStop(1, `rgba(242, 239, 231, ${ss.alpha})`);
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(ss.x, ss.y);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Head glow
+            ctx.beginPath();
+            ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(215, 255, 113, ${ss.alpha * 0.8})`;
+            ctx.fill();
+          }
+
+          requestAnimationFrame(draw);
+        }
+
+        resize();
+        createStars();
+        draw();
+        window.addEventListener('resize', () => { resize(); createStars(); });
+      })();
+
+      /* ===== ZODIAC DATA ===== */
+      const signs = [
+        ["aries", "白羊座", "Aries", "3.21 - 4.19", "fire",
+         '<svg viewBox="0 0 48 48"><circle cx="24" cy="30" r="10"/><path d="M14 30 C14 14 24 8 24 8 C24 8 34 14 34 30"/><path d="M10 16 Q4 8 8 2"/><path d="M38 16 Q44 8 40 2"/></svg>'],
+        ["taurus", "金牛座", "Taurus", "4.20 - 5.20", "earth",
+         '<svg viewBox="0 0 48 48"><path d="M10 14 Q4 4 14 8"/><path d="M38 14 Q44 4 34 8"/><circle cx="24" cy="28" r="12"/><circle cx="24" cy="28" r="4"/></svg>'],
+        ["gemini", "双子座", "Gemini", "5.21 - 6.21", "air",
+         '<svg viewBox="0 0 48 48"><line x1="14" y1="10" x2="34" y2="10"/><line x1="14" y1="38" x2="34" y2="38"/><line x1="14" y1="10" x2="14" y2="38"/><line x1="34" y1="10" x2="34" y2="38"/><line x1="14" y1="18" x2="34" y2="30"/><line x1="14" y1="30" x2="34" y2="18"/></svg>'],
+        ["cancer", "巨蟹座", "Cancer", "6.22 - 7.22", "water",
+         '<svg viewBox="0 0 48 48"><path d="M10 24 A10 10 0 0 1 30 24"/><circle cx="34" cy="28" r="8"/><circle cx="34" cy="28" r="3"/></svg>'],
+        ["leo", "狮子座", "Leo", "7.23 - 8.22", "fire",
+         '<svg viewBox="0 0 48 48"><path d="M16 28 A8 8 0 1 1 32 28 A8 8 0 1 1 16 28"/><path d="M24 20 A12 12 0 0 1 36 28"/><path d="M24 20 A12 12 0 0 0 12 28"/><circle cx="28" cy="24" r="2"/></svg>'],
+        ["virgo", "处女座", "Virgo", "8.23 - 9.22", "earth",
+         '<svg viewBox="0 0 48 48"><path d="M12 38 L12 16 Q12 8 20 8 Q28 8 28 16"/><path d="M22 38 L22 16 Q22 8 30 8 Q38 8 38 16"/><path d="M32 38 L38 38"/><path d="M32 26 A6 6 0 0 1 38 32"/></svg>'],
+        ["libra", "天秤座", "Libra", "9.23 - 10.23", "air",
+         '<svg viewBox="0 0 48 48"><line x1="24" y1="38" x2="24" y2="22"/><line x1="10" y1="22" x2="38" y2="22"/><path d="M10 22 Q10 12 24 12 Q38 12 38 22"/><line x1="8" y1="38" x2="40" y2="38"/></svg>'],
+        ["scorpio", "天蝎座", "Scorpio", "10.24 - 11.21", "water",
+         '<svg viewBox="0 0 48 48"><path d="M12 38 L12 16 Q12 8 20 8 Q28 8 28 16"/><path d="M22 38 L22 26"/><path d="M32 38 L32 20 Q32 14 38 14 Q44 14 44 20 L44 10"/></svg>'],
+        ["sagittarius", "射手座", "Sagittarius", "11.22 - 12.21", "fire",
+         '<svg viewBox="0 0 48 48"><line x1="10" y1="38" x2="38" y2="10"/><path d="M30 10 L38 10 L38 18"/><circle cx="24" cy="24" r="4"/></svg>'],
+        ["capricorn", "摩羯座", "Capricorn", "12.22 - 1.19", "earth",
+         '<svg viewBox="0 0 48 48"><path d="M12 36 L12 24 Q12 16 20 16 L28 16 Q36 16 36 24 L36 12"/><path d="M36 24 Q36 32 30 36 Q24 40 20 36 Q14 30 22 28"/></svg>'],
+        ["aquarius", "水瓶座", "Aquarius", "1.20 - 2.18", "air",
+         '<svg viewBox="0 0 48 48"><path d="M8 20 Q14 14 24 20 Q34 26 40 20"/><path d="M8 28 Q14 22 24 28 Q34 34 40 28"/></svg>'],
+        ["pisces", "双鱼座", "Pisces", "2.19 - 3.20", "water",
+         '<svg viewBox="0 0 48 48"><path d="M8 16 Q18 10 24 16 Q30 22 40 16"/><line x1="24" y1="10" x2="24" y2="38"/><path d="M8 32 Q18 26 24 32 Q30 38 40 32"/></svg>'],
+      ];
+
+      const elementNames = { fire: "火", earth: "土", air: "风", water: "水" };
+      let period = "daily";
+
+      // Date
+      document.getElementById("todayLabel").textContent =
+        new Date().toLocaleDateString("zh-CN", {
+          year: "numeric", month: "long", day: "numeric", weekday: "long",
+        });
+
+      // Render grid
+      const grid = document.getElementById("signGrid");
+      grid.innerHTML = signs.map(([key, cn, en, range, element, icon], i) =>
+        `<a class="card" data-element="${element}"
+            href="/horoscope/static/detail.html?sign=${key}&period=${period}"
+            style="animation-delay: ${i * 0.06}s">
+          <span class="element-badge">${elementNames[element]}</span>
+          <span class="icon">${icon}</span>
+          <span class="name">${cn}</span>
+          <span class="en">${en}</span>
+          <span class="range">${range}</span>
+        </a>`
+      ).join("");
+
+      // Period buttons
+      document.querySelectorAll(".period-bar button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".period-bar button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          period = btn.dataset.period;
+          grid.querySelectorAll(".card").forEach((card, i) => {
+            card.href = `/horoscope/static/detail.html?sign=${signs[i][0]}&period=${period}`;
+          });
+        });
+      });
+
+      /* ===== PARALLAX on scroll ===== */
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            const scrollY = window.scrollY;
+            const header = document.querySelector('header');
+            if (header) {
+              header.style.transform = `translateY(${scrollY * 0.15}px)`;
+              header.style.opacity = Math.max(0, 1 - scrollY / 500);
+            }
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    </script>
   </body>
 </html>

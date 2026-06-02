@@ -11,7 +11,21 @@ from xingzuo.secrets import get_secret
 
 
 DISCLAIMER = "本报告基于西洋热带占星的真实星历与规则解释模型生成，仅供自我观察与娱乐参考，不构成医疗、投资或法律建议。"
-EPHEMERIS_NOTICE = "星历计算使用 Swiss Ephemeris / pyswisseph：热带黄道、地心黄经。商业发布前需确认 AGPL 或商业授权。"
+SCORE_LABELS = [
+    (80, "吉", "强力支撑，抓住机会发力"),
+    (70, "顺", "信号积极，适合主动出击"),
+    (60, "稳", "略有助力，可适度推进"),
+    (50, "平", "中性日常，维持节奏即可"),
+    (40, "弱", "阻力明显，需谨慎行事"),
+    (0,  "凶", "重大压力，宜守不宜攻"),
+]
+
+
+def _score_label(score: int) -> tuple[str, str]:
+    for threshold, label, desc in SCORE_LABELS:
+        if score >= threshold:
+            return label, desc
+    return "凶", "重大压力，宜守不宜攻"
 DEFAULT_DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
 DEFAULT_OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
@@ -36,8 +50,9 @@ class ContentWriter:
         }
         if forecast.evidence:
             lead_theme = forecast.evidence[0]["theme"]
+            label, label_desc = _score_label(forecast.overall_score)
             summary = (
-                f"{context.subject}{period_label}整体分为 {forecast.overall_score}。"
+                f"{context.subject}{period_label}整体分为 {forecast.overall_score}（{label}：{label_desc}）。"
                 f"真实行运重点落在{lead_theme}，建议先看清节奏，再决定投入强度。"
             )
         else:
@@ -65,7 +80,6 @@ class ContentWriter:
             "actions": forecast.actions,
             "evidence": forecast.evidence,
             "disclaimer": DISCLAIMER,
-            "ephemeris_notice": EPHEMERIS_NOTICE,
             "generated_at": forecast.generated_at.isoformat(),
             "writer": "rules",
         }
