@@ -4,7 +4,7 @@
     "pages/detail/detail"
   ],
   "window": {
-    "navigationBarTitleText": "星盘日课",
+    "navigationBarTitleText": "观星日课Lite",
     "navigationBarBackgroundColor": "#101524",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#101524",
