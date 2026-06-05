@@ -1,0 +1,51 @@
+<view class="page-shell index-page">
+  <view class="hero">
+    <view class="hero-hint">
+      <text class="hint-label">提示</text>
+      <text class="hint-copy">选择太阳星座，查看今日或本周行运。</text>
+    </view>
+    <text class="title">星盘日课</text>
+    <text class="subtitle">Western Tropical Astrology</text>
+  </view>
+
+  <view class="period-tabs">
+    <button
+      class="period-tab {{period === 'daily' ? 'active' : ''}}"
+      data-period="daily"
+      bindtap="selectPeriod"
+    >
+      今日运势
+    </button>
+    <button
+      class="period-tab {{period === 'weekly' ? 'active' : ''}}"
+      data-period="weekly"
+      bindtap="selectPeriod"
+    >
+      本周运势
+    </button>
+  </view>
+
+  <view class="section">
+    <view class="section-title">选择星座</view>
+    <view class="sign-grid">
+      <button
+        wx:for="{{signs}}"
+        wx:key="key"
+        class="sign-card element-{{item.elementKey}}"
+        data-sign="{{item.key}}"
+        bindtap="openDetail"
+      >
+        <text class="sign-icon">{{item.icon}}</text>
+        <view class="sign-copy">
+          <text class="sign-name">{{item.cn}}</text>
+          <text class="sign-meta">{{item.en}} · {{item.range}}</text>
+        </view>
+        <text class="sign-element">{{item.element}}</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="star-footer">
+    <text>十二星座各有潮汐，愿你在今日星光里与自己相逢。</text>
+  </view>
+</view>

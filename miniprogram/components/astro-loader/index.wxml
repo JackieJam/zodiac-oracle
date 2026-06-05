@@ -1,0 +1,20 @@
+<view class="loader-content">
+  <view class="astro-loader">
+    <view class="orbit orbit-outer"></view>
+    <view class="orbit orbit-middle"></view>
+    <view class="orbit orbit-inner"></view>
+    <view class="orbit-node node-one"></view>
+    <view class="orbit-node node-two"></view>
+    <view class="orbit-node node-three"></view>
+    <text class="loader-core">✦</text>
+  </view>
+  <text class="loading-title">星盘校准中</text>
+  <text class="loading-stage">{{stage}}</text>
+  <view class="progress-row">
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progress}}%;"></view>
+    </view>
+    <text class="progress-value">{{progress}}%</text>
+  </view>
+  <text class="loading-note">正在把行运相位整理成可读报告</text>
+</view>

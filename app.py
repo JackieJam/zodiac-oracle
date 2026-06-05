@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, time
+from functools import lru_cache
 import os
 import sqlite3
 from pathlib import Path
@@ -161,6 +162,15 @@ class AskRequest(BaseModel):
     question: str = Field(default="今天我最应该注意什么？", max_length=240)
 
 
+@lru_cache(maxsize=256)
+def build_public_report(sign: str, period: Period, target_date_iso: str) -> dict[str, Any]:
+    target_date = date.fromisoformat(target_date_iso)
+    period_range = get_period_range(target_date, period)
+    context = astro_engine.public_context(sign, period_range)
+    forecast = rule_engine.score(context)
+    return content_writer.write_fast(forecast)
+
+
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
@@ -180,14 +190,11 @@ def public_horoscope(sign: str, period: Period = "daily", date_: date | None = Q
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    period_range = get_period_range(target_date, period)
-    context = astro_engine.public_context(normalized_sign, period_range)
-    forecast = rule_engine.score(context)
     # 记录查询
     client_ip = get_real_ip(request)
     user_agent = request.headers.get("user-agent", "") if request else ""
     log_query(normalized_sign, period, "public", client_ip=client_ip, user_agent=user_agent)
-    return content_writer.write(forecast)
+    return build_public_report(normalized_sign, period, target_date.isoformat())
 
 
 @app.post("/api/horoscope/personal")

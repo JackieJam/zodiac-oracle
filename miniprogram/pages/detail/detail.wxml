@@ -1,0 +1,107 @@
+<view class="page-shell detail-page">
+  <view class="report-head">
+    <text class="sign-icon-large element-{{sign.elementKey}}">{{sign.icon}}</text>
+    <view class="report-head-copy">
+      <view class="report-kicker">
+        <text class="eyebrow">{{period === 'daily' ? 'Daily Transit' : 'Weekly Transit'}}</text>
+        <text class="element-pill element-{{sign.elementKey}}">{{sign.element}}</text>
+      </view>
+      <text class="title">{{sign.cn}}</text>
+      <text class="subtitle">{{sign.en}} · {{sign.range}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-page panel">
+    <astro-loader progress="{{loadingProgress}}" stage="{{loadingStage}}" />
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <text>{{error}}</text>
+    <button class="ghost-button retry" bindtap="loadReport">重新生成</button>
+  </view>
+
+  <view wx:else>
+    <view class="section panel report-card">
+      <text class="report-title">{{title}}</text>
+      <text class="report-summary" user-select="{{true}}">{{summary}}</text>
+    </view>
+
+    <view class="section">
+      <view class="section-title">四维评分</view>
+      <view class="score-grid">
+        <view wx:for="{{scores}}" wx:key="key" class="score-card">
+          <text class="score-label">{{item.label}}</text>
+          <text class="score-value">{{item.score}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section panel deep-card">
+      <text class="section-title">{{deepReading.headline || '星象提示'}}</text>
+      <view class="deep-row">
+        <text class="deep-label">为什么重要</text>
+        <text class="deep-copy" user-select="{{true}}">{{deepReading.why_it_matters}}</text>
+      </view>
+      <view class="deep-row">
+        <text class="deep-label">盲点</text>
+        <text class="deep-copy" user-select="{{true}}">{{deepReading.blind_spot}}</text>
+      </view>
+      <view class="deep-row">
+        <text class="deep-label">顺势动作</text>
+        <text class="deep-copy" user-select="{{true}}">{{deepReading.best_move}}</text>
+      </view>
+      <view class="deep-row">
+        <text class="deep-label">今日仪式</text>
+        <text class="deep-copy" user-select="{{true}}">{{deepReading.micro_ritual}}</text>
+      </view>
+    </view>
+
+    <view class="section two-list">
+      <view class="panel list-panel">
+        <text class="section-title">星象启示</text>
+        <view wx:for="{{highlights}}" wx:key="*this" class="list-item">{{item}}</view>
+      </view>
+      <view class="panel list-panel">
+        <text class="section-title">今日指引</text>
+        <view wx:for="{{actions}}" wx:key="*this" class="list-item">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="section panel ask-panel">
+      <text class="section-title">星谕回声</text>
+      <view class="quick-list">
+        <button
+          wx:for="{{quickQuestions}}"
+          wx:key="*this"
+          class="quick-question"
+          data-question="{{item}}"
+          bindtap="useQuickQuestion"
+        >
+          {{item}}
+        </button>
+      </view>
+      <textarea
+        class="question-input"
+        value="{{question}}"
+        maxlength="240"
+        auto-height
+        placeholder="写下你今天最想追问的问题"
+        placeholder-class="input-placeholder"
+        bindinput="onQuestionInput"
+      />
+      <button class="primary-button" loading="{{submitting}}" bindtap="submitQuestion">追问星盘</button>
+      <text class="answer-box" user-select="{{true}}">{{answer}}</text>
+    </view>
+
+    <view class="section panel evidence-panel">
+      <text class="section-title">行运相位</text>
+      <view wx:for="{{evidence}}" wx:key="planet" class="evidence-item">
+        <text class="evidence-title">{{item.planet}} {{item.aspect_cn}}</text>
+        <text class="evidence-copy" user-select="{{true}}">{{item.description}}</text>
+        <text class="evidence-meta" user-select="{{true}}">主题：{{item.theme}} · 置信度 {{item.confidence}}</text>
+      </view>
+    </view>
+
+    <text class="disclaimer" user-select="{{true}}">{{disclaimer}}</text>
+  </view>
+</view>

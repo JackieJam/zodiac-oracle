@@ -1,0 +1,260 @@
+.index-page {
+  padding: 28rpx 30rpx 34rpx;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(201, 164, 90, 0.14), transparent 34%),
+    linear-gradient(180deg, #101524 0%, #151b2d 54%, #0f1422 100%);
+}
+
+.index-page .section {
+  margin-top: 30rpx;
+}
+
+.index-page .section-title {
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.hero {
+  padding: 8rpx 2rpx 2rpx;
+}
+
+.hero .title,
+.hero .subtitle {
+  display: block;
+}
+
+.hero-hint {
+  display: flex;
+  min-height: 42rpx;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.hint-label {
+  display: flex;
+  width: 56rpx;
+  min-height: 30rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(201, 164, 90, 0.36);
+  border-radius: 999rpx;
+  color: #d2ad60;
+  font-size: 19rpx;
+  font-weight: 700;
+}
+
+.hint-copy {
+  color: rgba(247, 240, 220, 0.66);
+  font-size: 23rpx;
+  line-height: 1.35;
+}
+
+.hero .title {
+  margin-top: 10rpx;
+  color: #fff8e7;
+  font-size: 44rpx;
+  line-height: 1.08;
+}
+
+.hero .subtitle {
+  margin-top: 8rpx;
+  color: rgba(210, 173, 96, 0.9);
+  font-size: 20rpx;
+  line-height: 1.2;
+}
+
+.period-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8rpx;
+  margin-top: 28rpx;
+  overflow: hidden;
+  padding: 7rpx;
+  border: 1rpx solid rgba(201, 164, 90, 0.22);
+  border-radius: 8rpx;
+  background: rgba(255, 248, 231, 0.06);
+}
+
+.period-tab {
+  display: flex;
+  width: 100%;
+  min-height: 60rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6rpx;
+  color: rgba(247, 240, 220, 0.72);
+  font-size: 26rpx;
+}
+
+.period-tab.active {
+  background: #c9a45a;
+  color: #16120b;
+  font-weight: 700;
+}
+
+.sign-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx 14rpx;
+  margin-top: 20rpx;
+}
+
+.sign-card {
+  position: relative;
+  display: flex;
+  min-height: 126rpx;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8rpx;
+  overflow: hidden;
+  padding: 15rpx 15rpx 14rpx;
+  border: 1rpx solid rgba(201, 164, 90, 0.16);
+  border-radius: 8rpx;
+  background:
+    linear-gradient(135deg, rgba(255, 248, 231, 0.08), rgba(93, 150, 166, 0.07)),
+    rgba(255, 248, 231, 0.045);
+  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.sign-card::before {
+  position: absolute;
+  right: -34rpx;
+  bottom: -42rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border: 1rpx solid rgba(201, 164, 90, 0.1);
+  border-radius: 50%;
+  content: "";
+}
+
+.sign-icon {
+  display: flex;
+  width: 48rpx;
+  height: 48rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(201, 164, 90, 0.22);
+  border-radius: 50%;
+  background: rgba(201, 164, 90, 0.15);
+  color: #f4d38a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 29rpx;
+}
+
+.sign-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.sign-name {
+  display: block;
+  color: #fff8e7;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.sign-meta {
+  display: block;
+  margin-top: 6rpx;
+  color: rgba(247, 240, 220, 0.6);
+  font-size: 18rpx;
+  line-height: 1.2;
+}
+
+.sign-element {
+  position: absolute;
+  top: 14rpx;
+  right: 13rpx;
+  display: flex;
+  width: 50rpx;
+  min-height: 32rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(201, 164, 90, 0.26);
+  border-radius: 6rpx;
+  color: #c9a45a;
+  font-size: 18rpx;
+}
+
+.element-fire {
+  border-color: rgba(226, 121, 77, 0.3);
+  background:
+    linear-gradient(135deg, rgba(226, 121, 77, 0.15), rgba(255, 248, 231, 0.045)),
+    rgba(255, 248, 231, 0.045);
+}
+
+.element-fire .sign-icon,
+.element-fire .sign-element {
+  border-color: rgba(226, 121, 77, 0.38);
+  color: #e69360;
+}
+
+.element-fire .sign-icon {
+  background: rgba(226, 121, 77, 0.16);
+}
+
+.element-earth {
+  border-color: rgba(201, 164, 90, 0.3);
+}
+
+.element-earth .sign-icon,
+.element-earth .sign-element {
+  border-color: rgba(201, 164, 90, 0.38);
+  color: #d2ad60;
+}
+
+.element-earth .sign-icon {
+  background: rgba(201, 164, 90, 0.16);
+}
+
+.element-air {
+  border-color: rgba(109, 177, 188, 0.3);
+  background:
+    linear-gradient(135deg, rgba(109, 177, 188, 0.14), rgba(255, 248, 231, 0.045)),
+    rgba(255, 248, 231, 0.045);
+}
+
+.element-air .sign-icon,
+.element-air .sign-element {
+  border-color: rgba(109, 177, 188, 0.38);
+  color: #7cc5d0;
+}
+
+.element-air .sign-icon {
+  background: rgba(109, 177, 188, 0.15);
+}
+
+.element-water {
+  border-color: rgba(111, 143, 214, 0.32);
+  background:
+    linear-gradient(135deg, rgba(111, 143, 214, 0.15), rgba(255, 248, 231, 0.045)),
+    rgba(255, 248, 231, 0.045);
+}
+
+.element-water .sign-icon,
+.element-water .sign-element {
+  border-color: rgba(111, 143, 214, 0.42);
+  color: #8da6eb;
+}
+
+.element-water .sign-icon {
+  background: rgba(111, 143, 214, 0.16);
+}
+
+.star-footer {
+  display: flex;
+  min-height: 76rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28rpx;
+  padding: 0 28rpx;
+  border-top: 1rpx solid rgba(201, 164, 90, 0.14);
+  color: rgba(247, 240, 220, 0.5);
+  font-size: 22rpx;
+  line-height: 1.45;
+  text-align: center;
+}

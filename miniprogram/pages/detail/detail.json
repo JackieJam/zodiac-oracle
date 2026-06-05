@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "星象报告",
+  "usingComponents": {
+    "astro-loader": "/components/astro-loader/index"
+  },
+  "componentPlaceholder": {
+    "astro-loader": "view"
+  }
+}

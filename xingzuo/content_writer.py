@@ -41,6 +41,9 @@ class ContentWriter:
             structured["writer"] = "rules+llm"
         return structured
 
+    def write_fast(self, forecast: Forecast) -> dict[str, Any]:
+        return self._structured_response(forecast)
+
     def _structured_response(self, forecast: Forecast) -> dict[str, Any]:
         context = forecast.context
         period_label = "今日" if context.period.period == "daily" else "本周"

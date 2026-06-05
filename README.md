@@ -23,6 +23,32 @@ uv run app.py
 http://127.0.0.1:8000
 ```
 
+当前脚本实际监听 `http://127.0.0.1:8512`；如果需要 8000 端口，可改 `app.py` 末尾的 `uvicorn.run` 参数或用独立 uvicorn 命令启动。
+
+## 小程序前端
+
+项目内已加入微信小程序前端骨架：
+
+```text
+miniprogram/
+```
+
+本地开发流程：
+
+1. 用微信开发者工具导入 `/Users/jackie_m/Documents/Code_Projects/40_xingzuo/miniprogram`
+2. 首次导入时把 `project.config.json` 中的 `appid` 从 `touristappid` 改成你的小程序 AppID，或在开发者工具中选择自己的 AppID。
+3. 默认调用远端 Ubuntu 后端：`https://jackieai.top/horoscope`。
+4. 在微信公众平台配置 request 合法域名：`https://jackieai.top`。
+5. 如果开发者工具仍提示域名不在合法列表，到“详情 > 域名信息”刷新项目配置后重新编译。
+
+小程序 API 地址配置在：
+
+```text
+miniprogram/utils/config.js
+```
+
+如果临时要改成本机后端，可把 `apiBaseUrl` 改成 `http://127.0.0.1:8512`，并在项目根目录运行 `uv run app.py`。
+
 ## 测试
 
 ```bash

@@ -1,0 +1,224 @@
+.loader-content {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.astro-loader {
+  position: relative;
+  width: 248rpx;
+  height: 248rpx;
+}
+
+.orbit {
+  position: absolute;
+  border: 1rpx solid rgba(201, 164, 90, 0.34);
+  border-radius: 50%;
+}
+
+.orbit::before,
+.orbit::after {
+  position: absolute;
+  border-radius: 50%;
+  content: "";
+}
+
+.orbit-outer {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-color: rgba(201, 164, 90, 0.3);
+  animation: orbit-spin 7s linear infinite;
+}
+
+.orbit-outer::before {
+  top: 18rpx;
+  left: 50%;
+  width: 10rpx;
+  height: 10rpx;
+  background: #f4d38a;
+  box-shadow: 0 0 18rpx rgba(244, 211, 138, 0.78);
+}
+
+.orbit-middle {
+  top: 34rpx;
+  right: 34rpx;
+  bottom: 34rpx;
+  left: 34rpx;
+  border-color: rgba(109, 177, 188, 0.36);
+  transform: rotate(24deg);
+  animation: orbit-spin-reverse 5.4s linear infinite;
+}
+
+.orbit-middle::before {
+  right: 13rpx;
+  bottom: 31rpx;
+  width: 9rpx;
+  height: 9rpx;
+  background: #7cc5d0;
+  box-shadow: 0 0 18rpx rgba(124, 197, 208, 0.76);
+}
+
+.orbit-inner {
+  top: 72rpx;
+  right: 72rpx;
+  bottom: 72rpx;
+  left: 72rpx;
+  border-color: rgba(111, 143, 214, 0.42);
+  transform: rotate(-18deg);
+  animation: orbit-spin 4.2s linear infinite;
+}
+
+.orbit-inner::before {
+  top: 8rpx;
+  right: 18rpx;
+  width: 8rpx;
+  height: 8rpx;
+  background: #8da6eb;
+  box-shadow: 0 0 16rpx rgba(141, 166, 235, 0.76);
+}
+
+.orbit-node {
+  position: absolute;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: rgba(255, 248, 231, 0.85);
+  box-shadow: 0 0 20rpx rgba(255, 248, 231, 0.62);
+  animation: node-pulse 1.8s ease-in-out infinite;
+}
+
+.node-one {
+  top: 50rpx;
+  left: 34rpx;
+}
+
+.node-two {
+  right: 42rpx;
+  bottom: 54rpx;
+  animation-delay: 0.35s;
+}
+
+.node-three {
+  bottom: 28rpx;
+  left: 104rpx;
+  animation-delay: 0.7s;
+}
+
+.loader-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: 82rpx;
+  height: 82rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(201, 164, 90, 0.34);
+  border-radius: 50%;
+  background: rgba(16, 21, 36, 0.9);
+  box-shadow:
+    0 0 30rpx rgba(201, 164, 90, 0.22),
+    inset 0 0 22rpx rgba(109, 177, 188, 0.1);
+  color: #f4d38a;
+  font-size: 42rpx;
+  transform: translate(-50%, -50%);
+}
+
+.loading-title,
+.loading-stage,
+.loading-note,
+.progress-value {
+  display: block;
+}
+
+.loading-title {
+  margin-top: 30rpx;
+  color: #fff8e7;
+  font-size: 34rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.loading-stage {
+  margin-top: 12rpx;
+  color: rgba(247, 240, 220, 0.72);
+  font-size: 25rpx;
+  line-height: 1.35;
+}
+
+.progress-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) 72rpx;
+  gap: 16rpx;
+  align-items: center;
+  margin-top: 30rpx;
+}
+
+.progress-track {
+  height: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(201, 164, 90, 0.22);
+  border-radius: 999rpx;
+  background: rgba(12, 16, 28, 0.7);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6db1bc 0%, #c9a45a 70%, #f4d38a 100%);
+  box-shadow: 0 0 18rpx rgba(201, 164, 90, 0.46);
+  transition: width 0.42s ease;
+}
+
+.progress-value {
+  color: #f4d38a;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1;
+  text-align: right;
+}
+
+.loading-note {
+  margin-top: 18rpx;
+  color: rgba(247, 240, 220, 0.46);
+  font-size: 22rpx;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-spin-reverse {
+  from {
+    transform: rotate(24deg);
+  }
+
+  to {
+    transform: rotate(-336deg);
+  }
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.76);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

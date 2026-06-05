@@ -38,6 +38,16 @@ def test_public_api_returns_traceable_evidence():
     assert {"planet", "aspect", "orb", "theme", "confidence"} <= set(data["evidence"][0])
 
 
+def test_public_api_skips_llm_polish(monkeypatch):
+    def fail_polish(_self, _structured):
+        raise AssertionError("public API should not wait for LLM polishing")
+
+    monkeypatch.setattr(ContentWriter, "_try_llm_polish", fail_polish)
+    response = client.get("/api/horoscope/public?sign=taurus&period=daily&date=2026-05-29")
+    assert response.status_code == 200
+    assert response.json()["writer"] == "rules"
+
+
 def test_personal_api_accepts_missing_birth_time():
     response = client.post(
         "/api/horoscope/personal",
