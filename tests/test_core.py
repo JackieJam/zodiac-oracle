@@ -36,6 +36,11 @@ def test_public_api_returns_traceable_evidence():
     assert data["suggested_questions"]
     assert data["evidence"]
     assert {"planet", "aspect", "orb", "theme", "confidence"} <= set(data["evidence"][0])
+    # 排名字段
+    assert "ranking" in data
+    assert data["ranking"]["rank"] >= 1
+    assert data["ranking"]["total"] == 12
+    assert data["ranking"]["tag"] in ("今日星座运势靠前", "今日需多留意", "运势平稳")
 
 
 def test_public_api_skips_llm_polish(monkeypatch):

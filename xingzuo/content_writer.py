@@ -14,9 +14,9 @@ DISCLAIMER = "本报告基于西洋热带占星的真实星历与规则解释模
 SCORE_LABELS = [
     (80, "吉", "强力支撑，抓住机会发力"),
     (70, "顺", "信号积极，适合主动出击"),
-    (60, "稳", "略有助力，可适度推进"),
-    (50, "平", "中性日常，维持节奏即可"),
-    (40, "弱", "阻力明显，需谨慎行事"),
+    (60, "稳", "无明显影响，正常推进"),
+    (50, "平", "略有波动，维持节奏即可"),
+    (35, "弱", "阻力明显，需谨慎行事"),
     (0,  "凶", "重大压力，宜守不宜攻"),
 ]
 
@@ -33,18 +33,18 @@ DEFAULT_OPENAI_MODEL = "gpt-4.1-mini"
 
 
 class ContentWriter:
-    def write(self, forecast: Forecast) -> dict[str, Any]:
-        structured = self._structured_response(forecast)
+    def write(self, forecast: Forecast, ranking: dict | None = None) -> dict[str, Any]:
+        structured = self._structured_response(forecast, ranking)
         polished = self._try_llm_polish(structured)
         if polished:
             structured["summary"] = polished
             structured["writer"] = "rules+llm"
         return structured
 
-    def write_fast(self, forecast: Forecast) -> dict[str, Any]:
-        return self._structured_response(forecast)
+    def write_fast(self, forecast: Forecast, ranking: dict | None = None) -> dict[str, Any]:
+        return self._structured_response(forecast, ranking)
 
-    def _structured_response(self, forecast: Forecast) -> dict[str, Any]:
+    def _structured_response(self, forecast: Forecast, ranking: dict | None = None) -> dict[str, Any]:
         context = forecast.context
         period_label = "今日" if context.period.period == "daily" else "本周"
         area_scores = {
@@ -63,7 +63,7 @@ class ContentWriter:
                 f"{context.subject}{period_label}整体分为 {forecast.overall_score}。"
                 "主相位信号较少，适合维持稳定节奏，避免为了变化而变化。"
             )
-        return {
+        result = {
             "subject": context.subject,
             "mode": context.mode,
             "sign": context.sign,
@@ -86,6 +86,9 @@ class ContentWriter:
             "generated_at": forecast.generated_at.isoformat(),
             "writer": "rules",
         }
+        if ranking:
+            result["ranking"] = ranking
+        return result
 
     def answer_question(self, report: dict[str, Any], question: str) -> dict[str, Any]:
         normalized_question = question.strip()

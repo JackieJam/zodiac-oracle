@@ -34,6 +34,10 @@
           <text class="score-value">{{item.score}}</text>
         </view>
       </view>
+      <view wx:if="{{ranking}}" class="ranking-box">
+        <text class="ranking-tag {{ranking.tag_type}}">{{ranking.tag}}</text>
+        <text class="ranking-text">{{rankingText}}</text>
+      </view>
     </view>
 
     <view class="section panel deep-card">

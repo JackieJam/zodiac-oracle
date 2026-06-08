@@ -351,6 +351,46 @@ h1 {
   color: var(--muted);
 }
 
+/* ===== RANKING ===== */
+.ranking-section {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 12px;
+  text-align: center;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.ranking-badge {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.ranking-badge.top {
+  color: #10b981;
+}
+
+.ranking-badge.bottom {
+  color: #f59e0b;
+}
+
+.ranking-badge.neutral {
+  color: var(--muted);
+}
+
+.ranking-detail {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.ranking-detail .rank-highlight {
+  color: var(--warm);
+  font-weight: 600;
+}
+
 /* ===== REPORT SECTIONS ===== */
 .report-section {
   margin-top: 24px;

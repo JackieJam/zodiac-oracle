@@ -121,6 +121,17 @@ Page({
       ...report.scores[key]
     }));
     const quickQuestions = (report.suggested_questions || deepReading.reflection_questions || []).slice(0, 4);
+
+    // 排名信息
+    const ranking = report.ranking || null;
+    let rankingText = "";
+    if (ranking) {
+      const signNames = {aries:"白羊",taurus:"金牛",gemini:"双子",cancer:"巨蟹",leo:"狮子",virgo:"处女",libra:"天秤",scorpio:"天蝎",sagittarius:"射手",capricorn:"摩羯",aquarius:"水瓶",pisces:"双鱼"};
+      const top3 = ranking.top3.map(s => (signNames[s.sign]||s.sign) + " " + s.score).join("、");
+      const bottom3 = ranking.bottom3.map(s => (signNames[s.sign]||s.sign) + " " + s.score).join("、");
+      rankingText = `${ranking.tag} · 12星座第${ranking.rank} · 前三：${top3} · 后三：${bottom3}`;
+    }
+
     this.setData({
       actions: report.actions || [],
       answer: "星象已经展开。你可以写下今天最在意的问题，让星盘给出一段更贴近你的解释。",
@@ -131,6 +142,8 @@ Page({
       quickQuestions,
       report,
       scores,
+      ranking,
+      rankingText,
       summary: report.summary || "",
       title: `${report.subject || this.data.sign.cn} · ${report.period.type === "daily" ? "今日" : "本周"} ${report.overall_score || ""}`
     });
